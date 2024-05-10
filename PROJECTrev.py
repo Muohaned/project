@@ -442,33 +442,6 @@ city_data = all_years_data.groupby('City').agg({
     'HEFAMINC': 'median'      # Median household income
 }).reset_index()
 
-
-# Plot Meaningful Visualizations
-
-# 1. Bar Plot: Median Age Distribution by City
-fig1 = px.bar(city_data, x='City', y='PRTAGE', title='Median Age Distribution by City')
-
-# 2. Pie Chart: Employment Status Distribution by City
-fig2 = px.pie(city_data, values=city_data.groupby('PEMLR')['City'].count(), names=city_data['PEMLR'].unique(), title='Employment Status Distribution by City')
-
-# 3. Box Plot: Household Income Distribution by City
-fig3 = px.box(city_data, x='City', y='HEFAMINC', title='Median Household Income Distribution by City')
-
-# 4. Scatter Plot: Education Level vs. Median Age by City
-fig4 = px.scatter(city_data, x='PEEDUCA', y='PRTAGE', color='City', title='Education Level vs. Median Age by City')
-
-# 5. Bar Plot: Race/Ethnicity Distribution by City
-fig5 = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
-
-# Display the plots
-fig1.show()
-fig2.show()
-fig3.show()
-fig4.show()
-fig5.show()
-
-
-
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
