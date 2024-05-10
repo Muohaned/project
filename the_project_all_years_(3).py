@@ -7,10 +7,23 @@ Original file is located at
     https://colab.research.google.com/drive/1gkR1tfJmWdb0gELaJG7ATMWELvwYrqPC
 """
 
+import subprocess
+
+# Define function to install dependencies from requirements.txt
+def install_dependencies():
+    subprocess.call(['pip', 'install', '-r', 'requirements.txt'])
+
+# Install dependencies
+install_dependencies()
+
 import requests
 import pandas as pd
+import streamlit as st
+import plotly.express as px
+import json
+#API key
+#pip install streamlit
 
-# Your API key
 api_key = '1d5f783796626d6b77e59be548a8f73a7576a37d'
 
 # Base URL for the US Census Bureau API
@@ -393,9 +406,6 @@ for year in range(2010, 2024):
     print(yearly_data.head())  # Display the first few rows of the DataFrame
     print("\n")  # Add a newline for better readability
 
-import pandas as pd
-import json
-import plotly.express as px
 
 # Define a function to load and aggregate data from JSON files for all years
 def load_and_aggregate_all_years(start_year, end_year):
@@ -451,11 +461,7 @@ fig4.show()
 fig5.show()
 
 
-#pip install streamlit
-import streamlit as st
-import pandas as pd
-import json
-import plotly.express as px
+
 
 # Define a function to load and aggregate data from JSON files for all years
 def load_and_aggregate_all_years(start_year, end_year):
