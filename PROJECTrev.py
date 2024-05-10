@@ -430,7 +430,6 @@ end_year = 2023
 all_years_data = load_and_aggregate_all_years(start_year, end_year)
 
 # Clean the data (handle non-logical values and outliers)
-# Drop rows with NaN values after conversion
 all_years_data.dropna(inplace=True)
 
 # Aggregate Data by City
@@ -470,36 +469,6 @@ fig5.show()
 
 
 
-
-# Define a function to load and aggregate data from JSON files for all years
-def load_and_aggregate_all_years(start_year, end_year):
-    aggregated_data = pd.DataFrame(columns=['City', 'PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'PEMLR', 'HEFAMINC'])
-    for year in range(start_year, end_year + 1):
-        file_name = f'census_data_{year}.json'
-        with open(file_name, 'r') as file:
-            data = json.load(file)
-        df = pd.DataFrame(data)
-        aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
-    return aggregated_data
-
-# Load and aggregate data for all years
-start_year = 2010
-end_year = 2023
-all_years_data = load_and_aggregate_all_years(start_year, end_year)
-
-# Clean the data (handle non-logical values and outliers)
-# For example, replace non-logical or missing values with NaN
-
-# Aggregate Data by City
-city_data = all_years_data.groupby('City').agg({
-    'PRTAGE': 'median',       # Median age
-    'PRFAMNUM': 'count',      # Total count of families
-    'PTDTRACE': 'median',     # Median race/ethnicity
-    'PEEDUCA': 'median',      # Median education level
-    'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
-    'HEFAMINC': 'median'      # Median household income
-}).reset_index()
-
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
@@ -531,4 +500,3 @@ elif visualization_option == 'Race/Ethnicity Distribution':
     # Bar Plot: Race/Ethnicity Distribution by City
     fig = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
     st.plotly_chart(fig, use_container_width=True)
-
