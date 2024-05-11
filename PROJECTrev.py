@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1PFJUUQn5MkJwVyyc5ca3kM6P9WhrEsKU
 """
 
+
 import subprocess
 
 # Define function to install dependencies from requirements.txt
@@ -415,7 +416,7 @@ def load_and_aggregate_all_years(start_year, end_year):
         with open(file_name, 'r') as file:
             data = json.load(file)
         df = pd.DataFrame(data)
-
+        
         # Convert non-numeric columns to numeric, converting non-convertible values to NaN
         numeric_columns = ['PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'HEFAMINC']
         for col in numeric_columns:
@@ -430,7 +431,65 @@ end_year = 2023
 all_years_data = load_and_aggregate_all_years(start_year, end_year)
 
 # Clean the data (handle non-logical values and outliers)
+# Drop rows with NaN values after conversion
 all_years_data.dropna(inplace=True)
+
+# Aggregate Data by City
+city_data = all_years_data.groupby('City').agg({
+    'PRTAGE': 'median',       # Median age
+    'PRFAMNUM': 'count',      # Total count of families
+    'PTDTRACE': 'median',     # Median race/ethnicity
+    'PEEDUCA': 'median',      # Median education level
+    'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
+    'HEFAMINC': 'median'      # Median household income
+}).reset_index()
+
+
+# Plot Meaningful Visualizations
+
+# 1. Bar Plot: Median Age Distribution by City
+fig1 = px.bar(city_data, x='City', y='PRTAGE', title='Median Age Distribution by City')
+
+# 2. Pie Chart: Employment Status Distribution by City
+fig2 = px.pie(city_data, values=city_data.groupby('PEMLR')['City'].count(), names=city_data['PEMLR'].unique(), title='Employment Status Distribution by City')
+
+# 3. Box Plot: Household Income Distribution by City
+fig3 = px.box(city_data, x='City', y='HEFAMINC', title='Median Household Income Distribution by City')
+
+# 4. Scatter Plot: Education Level vs. Median Age by City
+fig4 = px.scatter(city_data, x='PEEDUCA', y='PRTAGE', color='City', title='Education Level vs. Median Age by City')
+
+# 5. Bar Plot: Race/Ethnicity Distribution by City
+fig5 = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
+
+# Display the plots
+fig1.show()
+fig2.show()
+fig3.show()
+fig4.show()
+fig5.show()
+
+
+
+
+# Define a function to load and aggregate data from JSON files for all years
+def load_and_aggregate_all_years(start_year, end_year):
+    aggregated_data = pd.DataFrame(columns=['City', 'PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'PEMLR', 'HEFAMINC'])
+    for year in range(start_year, end_year + 1):
+        file_name = f'census_data_{year}.json'
+        with open(file_name, 'r') as file:
+            data = json.load(file)
+        df = pd.DataFrame(data)
+        aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
+    return aggregated_data
+
+# Load and aggregate data for all years
+start_year = 2010
+end_year = 2023
+all_years_data = load_and_aggregate_all_years(start_year, end_year)
+
+# Clean the data (handle non-logical values and outliers)
+# For example, replace non-logical or missing values with NaN
 
 # Aggregate Data by City
 city_data = all_years_data.groupby('City').agg({
@@ -455,8 +514,9 @@ if visualization_option == 'Median Age Distribution':
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Employment Status Distribution':
-    # Pie Chart: Employment Status Distribution by City
-    fig = px.pie(city_data, values=city_data.groupby('PEMLR')['City'].count(), names=city_data['PEMLR'].unique(), title='Employment Status Distribution by City')
+    # Bar Chart: Average Employment Status Distribution by City
+    employment_status_avg = city_data.groupby('PEMLR')['City'].count() / city_data['City'].nunique()
+    fig = px.bar(x=employment_status_avg.index, y=employment_status_avg.values, labels={'x': 'Employment Status', 'y': 'Average Proportion'}, title='Average Employment Status Distribution by City')
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Household Income Distribution':
@@ -465,11 +525,46 @@ elif visualization_option == 'Household Income Distribution':
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Education Level vs. Median Age':
-    # Scatter Plot: Education Level vs. Median Age by City
-    fig = px.scatter(city_data, x='PEEDUCA', y='PRTAGE', color='City', title='Education Level vs. Median Age by City')
+    # Calculate average education level and average age by city
+    avg_education_age = city_data.groupby('City').agg({
+        'PEEDUCA': 'mean',   # Average education level
+        'PRTAGE': 'mean'     # Average age
+    }).reset_index()
+
+    # Scatter Plot: Average Education Level vs. Average Age by City
+    fig = px.scatter(avg_education_age, x='PEEDUCA', y='PRTAGE', color='City', title='Average Education Level vs. Average Age by City')
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Race/Ethnicity Distribution':
     # Bar Plot: Race/Ethnicity Distribution by City
-    fig = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
+    fig = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City', color='PTDTRACE', color_discrete_map={
+        "07": "White-AI",
+        "20": "W-AI-HP",
+        "08": "White-Asian",
+        "17": "W-B-A",
+        "16": "W-B-AI",
+        "06": "White-Black",
+        "12": "Black-HP",
+        "18": "W-B-HP",
+        "21": "W-A-HP",
+        "02": "Black only",
+        "05": "Hawaiian/Pacific Islander Only",
+        "22": "B-AI-A",
+        "09": "White-HP",
+        "14": "AI-HP",
+        "10": "Black-AI",
+        "23": "W-B-AI-A",
+        "11": "Black-Asian",
+        "13": "AI-Asian",
+        "04": "Asian only",
+        "15": "Asian-HP",
+        "25": "Other 3 Race Combinations",
+        "01": "White only",
+        "26": "Other 4 and 5 Race Combinations",
+        "19": "W-AI-A",
+        "24": "W-AI-A-HP",
+        "03": "American Indian, Alaskan Native Only"
+    })
+    fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     st.plotly_chart(fig, use_container_width=True)
+
