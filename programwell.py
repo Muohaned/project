@@ -434,14 +434,14 @@ all_years_data = load_and_aggregate_all_years(start_year, end_year)
 all_years_data.dropna(inplace=True)
 
 # Aggregate Data by City
-city_data = all_years_data.groupby('City').agg({
-    'PRTAGE': 'median',       # Median age
-    'PRFAMNUM': 'count',      # Total count of families
-    'PTDTRACE': 'median',     # Median race/ethnicity
-    'PEEDUCA': 'median',      # Median education level
-    'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
-    'HEFAMINC': 'median'      # Median household income
-}).reset_index()
+#city_data = all_years_data.groupby('City').agg({
+   # 'PRTAGE': 'median',       # Median age
+ #   'PRFAMNUM': 'count',      # Total count of families
+ #   'PTDTRACE': 'median',     # Median race/ethnicity
+ #   'PEEDUCA': 'median',      # Median education level
+ #   'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
+ #   'HEFAMINC': 'median'      # Median household income
+#}).reset_index()
 
 
 # Plot Meaningful Visualizations
