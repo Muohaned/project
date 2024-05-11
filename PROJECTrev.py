@@ -8,6 +8,7 @@ Original file is located at
 """
 
 
+
 import subprocess
 
 # Define function to install dependencies from requirements.txt
@@ -390,25 +391,21 @@ for year in range(2010, 2024):
     file_name = f'census_data_{year}.json'
     yearly_data.to_json(file_name, orient='records')
 
-import pandas as pd
+
+allowed_values = {
+    "PEMARITL": {4, 2, 1, 3, -1, 6, 5},
+    "PXMLR": {41, -1, 33, 53, 11, 40, 2, 21, 0, 52, 42, 23, 30, 12, 20, 32, 3, 22, 10, 31, 13, 1, 50, 43},
+    "HEFAMINC": {11, 15, 6, 16, 2, 1, 13, 5, 14, 3, 8, 9, 7, 10, 12, 4},
+    "PXEDUCA": {52, 23, 50, 12, 53, -1, 22, 2, 11, 40, 13, 1, 33, 30, 20, 3, 43, 0, 10, 31, 42, 41, 32, 21},
+    "PRFAMNUM": {17, 4, 18, 10, 14, -1, 1, 11, 6, 2, 3, 13, 12, 16, 7, 8, 19, 5, 9, 15, 0}
+}
 
 # Function to load data from a JSON file into a DataFrame
 def load_census_data(year):
     file_name = f'census_data_{year}.json'
     return pd.read_json(file_name)
 
-# Iterate over each year from 2010 to 2023
-for year in range(2010, 2024):
-    # Load data for the current year
-    yearly_data = load_census_data(year)
-
-    # Display the data
-    print(f"Data for the year {year}:")
-    print(yearly_data.head())  # Display the first few rows of the DataFrame
-    print("\n")  # Add a newline for better readability
-
-
-# Function to load and aggregate data from JSON files for all years
+# Load and aggregate data for all years
 def load_and_aggregate_all_years(start_year, end_year):
     aggregated_data = pd.DataFrame(columns=['City', 'PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'PEMLR', 'HEFAMINC'])
     for year in range(start_year, end_year + 1):
@@ -422,9 +419,16 @@ def load_and_aggregate_all_years(start_year, end_year):
         for col in numeric_columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
 
+        # Filter out rows with values not in allowed_values
+        for col, values in allowed_values.items():
+            try:
+                df = df[df[col].isin(values)]
+            except KeyError:
+                print(f"Column '{col}' not found in the dataset. Skipping filtering for this column.")
+
         aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
     return aggregated_data
-
+    
 # Load and aggregate data for all years
 start_year = 2010
 end_year = 2023
@@ -448,26 +452,26 @@ city_data = all_years_data.groupby('City').agg({
 # Plot Meaningful Visualizations
 
 # 1. Bar Plot: Median Age Distribution by City
-fig1 = px.bar(city_data, x='City', y='PRTAGE', title='Median Age Distribution by City')
+#fig1 = px.bar(city_data, x='City', y='PRTAGE', title='Median Age Distribution by City')
 
 # 2. Pie Chart: Employment Status Distribution by City
-fig2 = px.pie(city_data, values=city_data.groupby('PEMLR')['City'].count(), names=city_data['PEMLR'].unique(), title='Employment Status Distribution by City')
+#fig2 = px.pie(city_data, values=city_data.groupby('PEMLR')['City'].count(), names=city_data['PEMLR'].unique(), title='Employment Status Distribution by City')
 
 # 3. Box Plot: Household Income Distribution by City
-fig3 = px.box(city_data, x='City', y='HEFAMINC', title='Median Household Income Distribution by City')
+#fig3 = px.box(city_data, x='City', y='HEFAMINC', title='Median Household Income Distribution by City')
 
 # 4. Scatter Plot: Education Level vs. Median Age by City
-fig4 = px.scatter(city_data, x='PEEDUCA', y='PRTAGE', color='City', title='Education Level vs. Median Age by City')
+#fig4 = px.scatter(city_data, x='PEEDUCA', y='PRTAGE', color='City', title='Education Level vs. Median Age by City')
 
 # 5. Bar Plot: Race/Ethnicity Distribution by City
-fig5 = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
+#fig5 = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
 
 # Display the plots
-fig1.show()
-fig2.show()
-fig3.show()
-fig4.show()
-fig5.show()
+#fig1.show()
+#fig2.show()
+#fig3.show()
+#fig4.show()
+#fig5.show()
 
 
 
@@ -567,4 +571,3 @@ elif visualization_option == 'Race/Ethnicity Distribution':
     })
     fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
     st.plotly_chart(fig, use_container_width=True)
-
