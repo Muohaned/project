@@ -416,8 +416,6 @@ def load_and_aggregate_all_years(start_year, end_year):
             data = json.load(file)
         df = pd.DataFrame(data)
 
-        # Replace non-numeric values with NaN
-        df = df.apply(pd.to_numeric, errors='coerce')
 
         # Cap age at 100
         df['PRTAGE'] = df['PRTAGE'].clip(upper=100)
