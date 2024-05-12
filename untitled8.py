@@ -433,6 +433,10 @@ all_years_data = load_and_aggregate_all_years(start_year, end_year)
 # Clean the data (handle non-logical values and outliers)
 # For example, replace non-logical or missing values with NaN
 
+all_years_data['PRTAGE'] = pd.to_numeric(all_years_data['PRTAGE'], errors='coerce')
+all_years_data['PRFAMNUM'] = pd.to_numeric(all_years_data['PRFAMNUM'], errors='coerce')
+all_years_data['HEFAMINC'] = pd.to_numeric(all_years_data['HEFAMINC'], errors='coerce')
+
 # Aggregate Data by City
 city_data = all_years_data.groupby('City').agg({
     'PRTAGE': 'mean',       # Average age
