@@ -389,7 +389,7 @@ for year in range(2010, 2024):
     file_name = f'census_data_{year}.json'
     yearly_data.to_json(file_name, orient='records')
 
-import pandas as pd
+
 
 # Function to load data from a JSON file into a DataFrame
 def load_census_data(year):
@@ -435,38 +435,13 @@ all_years_data.dropna(inplace=True)
 
 # Aggregate Data by City
 city_data = all_years_data.groupby('City').agg({
-    'PRTAGE': 'median',       # Median age
-    'PRFAMNUM': 'count',      # Total count of families
+    'PRTAGE': 'mean',       # Mean age
+    'PRFAMNUM': 'mean',      # Mean of families
     'PTDTRACE': 'median',     # Median race/ethnicity
-    'PEEDUCA': 'median',      # Median education level
+    'PEEDUCA': lambda x: x.mode().iloc[0],      #  Most common education level
     'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
     'HEFAMINC': 'median'      # Median household income
 }).reset_index()
-
-
-# Plot Meaningful Visualizations
-
-# 1. Bar Plot: Median Age Distribution by City
-fig1 = px.bar(city_data, x='City', y='PRTAGE', title='Median Age Distribution by City')
-
-# 2. Pie Chart: Employment Status Distribution by City
-fig2 = px.pie(city_data, values=city_data.groupby('PEMLR')['City'].count(), names=city_data['PEMLR'].unique(), title='Employment Status Distribution by City')
-
-# 3. Box Plot: Household Income Distribution by City
-fig3 = px.box(city_data, x='City', y='HEFAMINC', title='Median Household Income Distribution by City')
-
-# 4. Scatter Plot: Education Level vs. Median Age by City
-fig4 = px.scatter(city_data, x='PEEDUCA', y='PRTAGE', color='City', title='Education Level vs. Median Age by City')
-
-# 5. Bar Plot: Race/Ethnicity Distribution by City
-fig5 = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City')
-
-# Display the plots
-fig1.show()
-fig2.show()
-fig3.show()
-fig4.show()
-fig5.show()
 
 
 
@@ -492,38 +467,38 @@ all_years_data = load_and_aggregate_all_years(start_year, end_year)
 
 # Aggregate Data by City
 city_data = all_years_data.groupby('City').agg({
-    'PRTAGE': 'median',       # Median age
-    'PRFAMNUM': 'count',      # Total count of families
-    'PTDTRACE': 'median',     # Median race/ethnicity
-    'PEEDUCA': 'median',      # Median education level
-    'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
-    'HEFAMINC': 'median'      # Median household income
+    'PRTAGE': 'mean',       # Average age
+    'PRFAMNUM': 'mean',     # Total count of families
+    'PTDTRACE': lambda x: x.mode().iloc[0],  # Most common race/ethnicity
+    'PEEDUCA': lambda x: x.mode().iloc[0],   # Most common education level
+    'PEMLR': lambda x: x.mode().iloc[0],     # Most common employment status
+    'HEFAMINC': 'mean'      # Average household income
 }).reset_index()
 
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
 # Sidebar for selecting visualizations
-visualization_option = st.sidebar.radio('Select Visualization', ('Median Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Education Level vs. Median Age', 'Race/Ethnicity Distribution'))
+visualization_option = st.sidebar.radio('Select Visualization', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Education Level vs. Average Age', 'Race/Ethnicity Distribution'))
 
 # Plot Meaningful Visualizations based on user selection
-if visualization_option == 'Median Age Distribution':
-    # Bar Plot: Median Age Distribution by City
-    fig = px.bar(city_data, x='City', y='PRTAGE', title='Median Age Distribution by City')
+if visualization_option == 'Average Age Distribution':
+    # Bar Plot: Average Age Distribution by City
+    fig = px.bar(city_data, x='City', y='PRTAGE', title='Average Age Distribution by City')
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Employment Status Distribution':
-    # Bar Chart: Average Employment Status Distribution by City
-    employment_status_avg = city_data.groupby('PEMLR')['City'].count() / city_data['City'].nunique()
-    fig = px.bar(x=employment_status_avg.index, y=employment_status_avg.values, labels={'x': 'Employment Status', 'y': 'Average Proportion'}, title='Average Employment Status Distribution by City')
+    # Bar Chart: Most common Employment Status Distribution by City
+    employment_status_most_common = city_data.groupby('PEMLR')['City'].count().idxmax()
+    fig = px.bar(x=[employment_status_most_common], y=[city_data.groupby('PEMLR')['City'].count().max()], labels={'x': 'Employment Status', 'y': 'Frequency'}, title='Most Common Employment Status Distribution by City')
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Household Income Distribution':
     # Box Plot: Household Income Distribution by City
-    fig = px.box(city_data, x='City', y='HEFAMINC', title='Median Household Income Distribution by City')
+    fig = px.box(city_data, x='City', y='HEFAMINC', title='Average Household Income Distribution by City')
     st.plotly_chart(fig, use_container_width=True)
 
-elif visualization_option == 'Education Level vs. Median Age':
+elif visualization_option == 'Education Level vs. Average Age':
     # Calculate average education level and average age by city
     avg_education_age = city_data.groupby('City').agg({
         'PEEDUCA': 'mean',   # Average education level
@@ -536,7 +511,7 @@ elif visualization_option == 'Education Level vs. Median Age':
 
 elif visualization_option == 'Race/Ethnicity Distribution':
     # Bar Plot: Race/Ethnicity Distribution by City
-    fig = px.bar(city_data, x='City', y='PTDTRACE', title='Median Race/Ethnicity by City', color='PTDTRACE', color_discrete_map={
+    fig = px.bar(city_data, x='City', y='PTDTRACE', title='Most Common Race/Ethnicity by City', color='PTDTRACE', color_discrete_map={
         "07": "White-AI",
         "20": "W-AI-HP",
         "08": "White-Asian",
