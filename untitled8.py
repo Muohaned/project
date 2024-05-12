@@ -447,36 +447,6 @@ city_data = all_years_data.groupby('City').agg({
     'HEFAMINC': 'mean'      # Average household income
 }).reset_index()
 
-
-# Define a function to load and aggregate data from JSON files for all years
-def load_and_aggregate_all_years(start_year, end_year):
-    aggregated_data = pd.DataFrame(columns=['City', 'PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'PEMLR', 'HEFAMINC'])
-    for year in range(start_year, end_year + 1):
-        file_name = f'census_data_{year}.json'
-        with open(file_name, 'r') as file:
-            data = json.load(file)
-        df = pd.DataFrame(data)
-        aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
-    return aggregated_data
-
-# Load and aggregate data for all years
-start_year = 2010
-end_year = 2023
-all_years_data = load_and_aggregate_all_years(start_year, end_year)
-
-# Clean the data (handle non-logical values and outliers)
-# For example, replace non-logical or missing values with NaN
-
-# Aggregate Data by City
-city_data = all_years_data.groupby('City').agg({
-    'PRTAGE': 'mean',       # Average age
-    'PRFAMNUM': 'mean',     # Total count of families
-    'PTDTRACE': lambda x: x.mode().iloc[0],  # Most common race/ethnicity
-    'PEEDUCA': lambda x: x.mode().iloc[0],   # Most common education level
-    'PEMLR': lambda x: x.mode().iloc[0],     # Most common employment status
-    'HEFAMINC': 'mean'      # Average household income
-}).reset_index()
-
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
