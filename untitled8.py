@@ -415,12 +415,13 @@ def load_and_aggregate_all_years(start_year, end_year):
         with open(file_name, 'r') as file:
             data = json.load(file)
         df = pd.DataFrame(data)
-        
-        # Convert non-numeric columns to numeric, converting non-convertible values to NaN
-        numeric_columns = ['PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'HEFAMINC']
-        for col in numeric_columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-        
+
+        # Replace non-numeric values with NaN
+        df = df.apply(pd.to_numeric, errors='coerce')
+
+        # Cap age at 100
+        df['PRTAGE'] = df['PRTAGE'].clip(upper=100)
+
         aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
     return aggregated_data
 
