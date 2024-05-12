@@ -415,12 +415,12 @@ def load_and_aggregate_all_years(start_year, end_year):
         with open(file_name, 'r') as file:
             data = json.load(file)
         df = pd.DataFrame(data)
-
+        
         # Convert non-numeric columns to numeric, converting non-convertible values to NaN
         numeric_columns = ['PRTAGE', 'PRFAMNUM', 'PTDTRACE', 'PEEDUCA', 'HEFAMINC']
         for col in numeric_columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
-
+        
         aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
     return aggregated_data
 
@@ -430,20 +430,17 @@ end_year = 2023
 all_years_data = load_and_aggregate_all_years(start_year, end_year)
 
 # Clean the data (handle non-logical values and outliers)
-# Drop rows with NaN values after conversion
-all_years_data.dropna(inplace=True)
+# For example, replace non-logical or missing values with NaN
 
 # Aggregate Data by City
 city_data = all_years_data.groupby('City').agg({
-    'PRTAGE': 'mean',       # Mean age
-    'PRFAMNUM': 'mean',      # Mean of families
-    'PTDTRACE': 'median',     # Median race/ethnicity
-    'PEEDUCA': lambda x: x.mode().iloc[0],      #  Most common education level
-    'PEMLR': lambda x: x.mode().iloc[0],  # Most common employment status
-    'HEFAMINC': 'median'      # Median household income
+    'PRTAGE': 'mean',       # Average age
+    'PRFAMNUM': 'mean',     # Total count of families
+    'PTDTRACE': lambda x: x.mode().iloc[0],  # Most common race/ethnicity
+    'PEEDUCA': lambda x: x.mode().iloc[0],   # Most common education level
+    'PEMLR': lambda x: x.mode().iloc[0],     # Most common employment status
+    'HEFAMINC': 'mean'      # Average household income
 }).reset_index()
-
-
 
 
 # Define a function to load and aggregate data from JSON files for all years
