@@ -417,9 +417,6 @@ def load_and_aggregate_all_years(start_year, end_year):
         df = pd.DataFrame(data)
 
 
-        # Cap age at 100
-        df['PRTAGE'] = df['PRTAGE'].clip(upper=100)
-
         aggregated_data = pd.concat([aggregated_data, df], ignore_index=True)
     return aggregated_data
 
