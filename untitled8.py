@@ -31,7 +31,7 @@ base_url = 'https://api.census.gov/data'
 
 # Function to fetch data from the US Census Bureau API for a specific year
 def fetch_census_data_for_year(year, api_key):
-    url = f"{base_url}/{year}/cps/basic/jan"
+    url = f"{base_url}/{year}/cps/basic/may"
     params = {
         'get': 'PRTAGE,PXSEX,PRFAMNUM,PTDTRACE,PEEDUCA,PEMLR,HEFAMINC,GTCBSA,PEMLR,PWSSWGT,PEMARITL',
         'for': 'state:*',
