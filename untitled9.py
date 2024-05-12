@@ -466,29 +466,27 @@ if visualization_option == 'Average Age Distribution':
 elif visualization_option == 'Employment Status Distribution':
     # Count of each Employment Status by City
     employment_status_counts = city_data.groupby(['City', 'PEMLR']).size().unstack(fill_value=0)
-
+    
     # Plotting
-    fig = px.bar(employment_status_counts, x=employment_status_counts.index, y=employment_status_counts[1],
-                 labels={'x': 'City', 'y': 'Frequency'}, title='Employment Status Distribution by City')
+    fig = px.bar(employment_status_counts, x=employment_status_counts.index, 
+                 y=employment_status_counts.columns,
+                 labels={'x': 'City', 'y': 'Frequency'}, 
+                 title='Employment Status Distribution by City')
     fig.update_layout(barmode='stack')  # Stack bars for each city
     st.plotly_chart(fig, use_container_width=True)
-
+    
 elif visualization_option == 'Household Income Distribution':
     # Box Plot: Household Income Distribution by City
     fig = px.box(city_data, x='City', y='HEFAMINC', title='Average Household Income Distribution by City')
     st.plotly_chart(fig, use_container_width=True)
 
-elif visualization_option == 'Education Level vs. Average Age':
-    # Calculate average education level and average age by city
-    avg_education_age = city_data.groupby('City').agg({
-        'PEEDUCA': 'mean',   # Average education level
-        'PRTAGE': 'mean'     # Average age
-    }).reset_index()
+elif visualization_option == 'Education Level vs. Household Income':
+    # Calculate average education level and average household income by city
+    avg_education_income = city_data.groupby('PEEDUCA')['HEFAMINC'].mean().reset_index()
 
-    # Scatter Plot: Average Education Level vs. Average Age by City
-    fig = px.scatter(avg_education_age, x='PEEDUCA', y='PRTAGE', color='City',
-                     title='Average Education Level vs. Average Age by City',
-                     labels={'PEEDUCA': 'Average Education Level', 'PRTAGE': 'Average Age'})
+    # Plot: Education Level vs. Average Household Income
+    fig = px.bar(avg_education_income, x='PEEDUCA', y='HEFAMINC', title='Education Level vs. Average Household Income by City',
+                 labels={'PEEDUCA': 'Education Level', 'HEFAMINC': 'Average Household Income'})
     st.plotly_chart(fig, use_container_width=True)
 
 
