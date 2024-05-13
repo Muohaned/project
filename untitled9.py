@@ -454,6 +454,8 @@ city_data = all_years_data.groupby('City').agg({
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
+
+# Sidebar for selecting visualizations
 visualization_option = st.sidebar.radio('Select Visualization', 
                                         ('Average Age Distribution', 'Employment Status Distribution', 
                                          'Household Income Distribution', 'Education Level vs. Household Income', 
