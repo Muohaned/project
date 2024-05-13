@@ -455,71 +455,84 @@ city_data = all_years_data.groupby('City').agg({
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
 # Sidebar for selecting visualizations
-visualization_option = st.sidebar.radio('Select Visualization Type', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Average Household Income vs. Average Age', 'Race/Ethnicity Distribution'))
+visualization_option = st.sidebar.radio('Select Visualization', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Education Level vs. Average Age', 'Race/Ethnicity Distribution'))
 
 # Plot Meaningful Visualizations based on user selection
 if visualization_option == 'Average Age Distribution':
-  # Bar Plot: Average Age Distribution by City
-  fig = px.bar(city_data, x='City', y='PRTAGE', title='Average Age Distribution by City')
-  st.plotly_chart(fig, use_container_width=True)
+    # Bar Plot: Average Age Distribution by City
+    fig = px.bar(city_data, x='City', y='PRTAGE', title='Average Age Distribution by City')
+    st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Employment Status Distribution':
-  # Count of each Employment Status by City
-  employment_status_counts = city_data.groupby(['City', 'PEMLR']).size().unstack(fill_value=0)
-  
-  # Plotting
-  fig = px.bar(employment_status_counts, x=employment_status_counts.index, 
-            y=employment_status_counts.columns,
-            labels={'x': 'City', 'y': 'Frequency'}, 
-            title='Employment Status Distribution by City')
-  fig.update_layout(barmode='stack')  # Stack bars for each city
-  st.plotly_chart(fig, use_container_width=True)
-
+    # Count of each Employment Status by City
+    employment_status_counts = city_data.groupby(['City', 'PEMLR']).size().unstack(fill_value=0)
+    
+    # Plotting
+    fig = px.bar(employment_status_counts, x=employment_status_counts.index, 
+                 y=employment_status_counts.columns,
+                 labels={'x': 'City', 'y': 'Frequency'}, 
+                 title='Employment Status Distribution by City')
+    fig.update_layout(barmode='stack')  # Stack bars for each city
+    st.plotly_chart(fig, use_container_width=True)
+    
 elif visualization_option == 'Household Income Distribution':
-  # Box Plot: Household Income Distribution by City
-  fig = px.box(city_data, x='City', y='HEFAMINC', title='Average Household Income Distribution by City')
-  st.plotly_chart(fig, use_container_width=True)
+    # Box Plot: Household Income Distribution by City
+    fig = px.box(city_data, x='City', y='HEFAMINC', title='Average Household Income Distribution by City')
+    st.plotly_chart(fig, use_container_width=True)
 
-elif visualization_option == 'Average Household Income vs. Average Age':
-  # Calculate average household income and average age by city
-  avg_income_age = city_data.groupby('City')[['HEFAMINC', 'PRTAGE']].mean().reset_index()
+elif visualization_option == 'Education Level vs. Household Income':
+    # Calculate average education level and average household income by city
+    avg_education_income = city_data.groupby('PEEDUCA')['HEFAMINC'].mean().reset_index()
 
-  # Scatter Plot: Average Age vs Average Household Income by City
-  fig = px.scatter(avg_income_age, x='HEFAMINC', y='PRTAGE', color='City',
-                   title='Average Household Income vs. Average Age by City',
-                   hover_data=['City', 'HEFAMINC', 'PRTAGE'],
-                   labels={'HEFAMINC': 'Average Household Income', 'PRTAGE': 'Average Age'})
-  st.plotly_chart(fig, use_container_width=True)
+    # Plot: Education Level vs. Average Household Income
+    fig = px.bar(avg_education_income, x='PEEDUCA', y='HEFAMINC', title='Education Level vs. Average Household Income by City',
+                 labels={'PEEDUCA': 'Education Level', 'HEFAMINC': 'Average Household Income'})
+    st.plotly_chart(fig, use_container_width=True)
+
+
+    # Scatter Plot: Average Education Level vs. Average Age by City
+    fig = px.scatter(avg_education_age, x='PEEDUCA', y='PRTAGE', color='City', title='Average Education Level vs. Average Age by City')
+    st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Race/Ethnicity Distribution':
-  # Bar Plot: Race/Ethnicity Distribution by City
-  fig = px.bar(city_data, x='City', y='PTDTRACE', title='Most Common Race/Ethnicity by City', color='PTDTRACE', color_discrete_map={
-      "07": "White-AI",
-      "20": "W-AI-HP",
-      "08": "White-Asian",
-      "17": "W-B-A",
-      "16": "W-B-AI",
-      "06": "White-Black",
-      "12": "Black-HP",
-      "18": "W-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only",
-      "05": "Hawaiian/Pacific Islander Only",
-      "22": "B-AI-A",
-      "09": "White-HP",
-      "14": "AI-HP",
-      "10": "Black-AI",
-      "23": "W-B-AI-A",
-      "11": "Black-Asian",
-      "13": "AI-Asian",
-      "04": "Asian only",
-      "15": "Asian-HP",
-      "25": "Other 3 Race Combinations",
-      "01": "White only",
-      "26": "Other 4 and 5 Race Combinations",
-      "19": "W-AI-A",
-      "24": "W-AI-A-HP",
-      "03": "American Indian, Alaskan Native Only"
-  })
-  fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-  st.plotly_chart(fig, use_container_width=True)
+    # Bar Plot: Race/Ethnicity Distribution by City
+    fig = px.bar(city_data, x='City', y='PTDTRACE', title='Most Common Race/Ethnicity by City', color='PTDTRACE', color_discrete_map={
+        "07": "White-AI",
+        "20": "W-AI-HP",
+        "08": "White-Asian",
+        "17": "W-B-A",
+        "16": "W-B-AI",
+        "06": "White-Black",
+        "12": "Black-HP",
+        "18": "W-B-HP",
+        "21": "W-A-HP",
+        "02": "Black only",
+        "05": "Hawaiian/Pacific Islander Only",
+        "22": "B-AI-A",
+        "09": "White-HP",
+        "14": "AI-HP",
+        "10": "Black-AI",
+        "23": "W-B-AI-A",
+        "11": "Black-Asian",
+        "13": "AI-Asian",
+        "04": "Asian only",
+        "15": "Asian-HP",
+        "25": "Other 3 Race Combinations",
+        "01": "White only",
+        "26": "Other 4 and 5 Race Combinations",
+        "19": "W-AI-A",
+        "24": "W-AI-A-HP",
+        "03": "American Indian, Alaskan Native Only"
+    })
+    fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+    st.plotly_chart(fig, use_container_width=True)
+
+elif visualization_option == 'Employment Status Distribution':
+    # Count of each Employment Status by City
+    employment_status_counts = city_data.groupby(['City', 'PEMLR']).size().unstack(fill_value=0)
+
+    # Plotting
+    fig = px.bar(employment_status_counts, x=employment_status_counts.index, y=employment_status_counts[1],
+                 labels={'x': 'City', 'y': 'Frequency'}, title='Employment Status Distribution by City')
+    fig.update_layout(barmode='stack')  # Stack bars for each city
+    st.plotly_chart(fig, use_container_width=True)
