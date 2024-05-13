@@ -454,8 +454,10 @@ city_data = all_years_data.groupby('City').agg({
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
-# Sidebar for selecting visualizations
-visualization_option = st.sidebar.radio('Select Visualization', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Education Level vs. Average Age', 'Race/Ethnicity Distribution'))
+visualization_option = st.sidebar.radio('Select Visualization', 
+                                        ('Average Age Distribution', 'Employment Status Distribution', 
+                                         'Household Income Distribution', 'Education Level vs. Household Income', 
+                                         'Race/Ethnicity Distribution'))
 
 # Plot Meaningful Visualizations based on user selection
 if visualization_option == 'Average Age Distribution':
@@ -490,8 +492,14 @@ elif visualization_option == 'Education Level vs. Household Income':
     st.plotly_chart(fig, use_container_width=True)
 
 
-    # Scatter Plot: Average Education Level vs. Average Age by City
-    fig = px.scatter(avg_education_age, x='PEEDUCA', y='PRTAGE', color='City', title='Average Education Level vs. Average Age by City')
+    elif visualization_option == 'Education Level vs. Household Income':
+    # Calculate average education level and average household income by city
+    avg_education_income = city_data.groupby('PEEDUCA')['HEFAMINC'].mean().reset_index()
+
+    # Plot: Education Level vs. Average Household Income
+    fig = px.scatter(avg_education_income, x='PEEDUCA', y='HEFAMINC', 
+                     title='Education Level vs. Average Household Income by City',
+                     labels={'PEEDUCA': 'Education Level', 'HEFAMINC': 'Average Household Income'})
     st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Race/Ethnicity Distribution':
