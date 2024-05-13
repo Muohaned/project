@@ -484,16 +484,12 @@ elif visualization_option == 'Average Household Income vs. Average Age':
   # Calculate average household income and average age by city
   avg_income_age = city_data.groupby('City')[['HEFAMINC', 'PRTAGE']].mean().reset_index()
 
-  # Scatter Plot: Average Age vs Average Household Income by City
+    # Scatter Plot: Average Age vs Average Household Income by City
   fig = px.scatter(avg_income_age, x='HEFAMINC', y='PRTAGE', color='City',
                    title='Average Household Income vs. Average Age by City',
                    hover_data=['City', 'HEFAMINC', 'PRTAGE'],
                    labels={'HEFAMINC': 'Average Household Income', 'PRTAGE': 'Average Age'})
   st.plotly_chart(fig, use_container_width=True)
-
-    # Scatter Plot: Average Education Level vs. Average Age by City
-    fig = px.scatter(avg_education_age, x='PEEDUCA', y='PRTAGE', color='City', title='Average Education Level vs. Average Age by City')
-    st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Race/Ethnicity Distribution':
     # Bar Plot: Race/Ethnicity Distribution by City
