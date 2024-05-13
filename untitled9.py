@@ -464,16 +464,15 @@ if visualization_option == 'Average Age Distribution':
   st.plotly_chart(fig, use_container_width=True)
 
 elif visualization_option == 'Employment Status Distribution':
-  # Count of each Employment Status by City
-  employment_status_counts = city_data.groupby(['City', 'PEMLR']).size().unstack(fill_value=0)
-  
-  # Plotting
-  fig = px.bar(employment_status_counts, x=employment_status_counts.index, 
-            y=employment_status_counts.columns,
-            labels={'x': 'City', 'y': 'Frequency'}, 
-            title='Employment Status Distribution by City')
-  fig.update_layout(barmode='stack')  # Stack bars for each city
-  st.plotly_chart(fig, use_container_width=True)
+  # Find the most common Employment Status for each City
+most_common_employment_status = city_data.groupby('City')['PEMLR'].agg(lambda x: x.mode()[0])
+
+# Plotting
+fig = px.bar(x=most_common_employment_status.index, y=most_common_employment_status.values,
+             labels={'x': 'City', 'y': 'Most Common Employment Status'},
+             title='Most Common Employment Status by City')
+st.plotly_chart(fig, use_container_width=True)
+
 
 elif visualization_option == 'Household Income Distribution':
   # Box Plot: Household Income Distribution by City
