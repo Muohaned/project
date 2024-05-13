@@ -455,7 +455,7 @@ city_data = all_years_data.groupby('City').agg({
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
 # Sidebar for selecting visualizations
-visualization_option = st.sidebar.radio('Select Visualization', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Education Level vs. Average Age', 'Race/Ethnicity Distribution'))
+visualization_option = st.sidebar.radio('Select Visualization', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Average Household Income vs. Average Age', 'Race/Ethnicity Distribution'))
 
 # Plot Meaningful Visualizations based on user selection
 if visualization_option == 'Average Age Distribution':
@@ -480,15 +480,16 @@ elif visualization_option == 'Household Income Distribution':
     fig = px.box(city_data, x='City', y='HEFAMINC', title='Average Household Income Distribution by City')
     st.plotly_chart(fig, use_container_width=True)
 
-elif visualization_option == 'Education Level vs. Household Income':
-    # Calculate average education level and average household income by city
-    avg_education_income = city_data.groupby('PEEDUCA')['HEFAMINC'].mean().reset_index()
+elif visualization_option == 'Average Household Income vs. Average Age':
+  # Calculate average household income and average age by city
+  avg_income_age = city_data.groupby('City')[['HEFAMINC', 'PRTAGE']].mean().reset_index()
 
-    # Plot: Education Level vs. Average Household Income
-    fig = px.bar(avg_education_income, x='PEEDUCA', y='HEFAMINC', title='Education Level vs. Average Household Income by City',
-                 labels={'PEEDUCA': 'Education Level', 'HEFAMINC': 'Average Household Income'})
-    st.plotly_chart(fig, use_container_width=True)
-
+  # Scatter Plot: Average Age vs Average Household Income by City
+  fig = px.scatter(avg_income_age, x='HEFAMINC', y='PRTAGE', color='City',
+                   title='Average Household Income vs. Average Age by City',
+                   hover_data=['City', 'HEFAMINC', 'PRTAGE'],
+                   labels={'HEFAMINC': 'Average Household Income', 'PRTAGE': 'Average Age'})
+  st.plotly_chart(fig, use_container_width=True)
 
     # Scatter Plot: Average Education Level vs. Average Age by City
     fig = px.scatter(avg_education_age, x='PEEDUCA', y='PRTAGE', color='City', title='Average Education Level vs. Average Age by City')
