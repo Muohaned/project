@@ -454,9 +454,11 @@ city_data = all_years_data.groupby('City').agg({
 # Streamlit App
 st.title('US Demographic Changes Dashboard (2010-2023)')
 
-# Sidebar for selecting visualizations
-visualization_option = st.sidebar.radio('Select Visualization', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Average Household Income vs. Average Age', 'Race/Ethnicity Distribution'))
+# Streamlit App
+st.title('US Demographic Changes Dashboard (2010-2023)')
 
+# Sidebar for selecting visualizations
+visualization_option = st.sidebar.radio('Select Visualization Type', ('Average Age Distribution', 'Employment Status Distribution', 'Household Income Distribution', 'Average Household Income vs. Average Age', 'Race/Ethnicity Distribution'))
 # Plot Meaningful Visualizations based on user selection
 if visualization_option == 'Average Age Distribution':
     # Bar Plot: Average Age Distribution by City
@@ -484,7 +486,7 @@ elif visualization_option == 'Average Household Income vs. Average Age':
   # Calculate average household income and average age by city
   avg_income_age = city_data.groupby('City')[['HEFAMINC', 'PRTAGE']].mean().reset_index()
 
-    # Scatter Plot: Average Age vs Average Household Income by City
+  # Scatter Plot: Average Age vs Average Household Income by City
   fig = px.scatter(avg_income_age, x='HEFAMINC', y='PRTAGE', color='City',
                    title='Average Household Income vs. Average Age by City',
                    hover_data=['City', 'HEFAMINC', 'PRTAGE'],
